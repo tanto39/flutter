@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../bloc/profile/profile_bloc.dart';
+import '../../repositories/profile_repository.dart';
 
 class ProfileScreen extends StatelessWidget {
   final String userId;
@@ -14,8 +15,10 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => ProfileBloc(
-        firestore: FirebaseFirestore.instance,
-        picker: ImagePicker(),
+        repository: ProfileRepository(
+          firestore: FirebaseFirestore.instance,
+          picker: ImagePicker(),
+        ),
         userId: userId,
       )..add(ProfileLoadRequested()),
       child: Scaffold(
@@ -29,9 +32,7 @@ class ProfileScreen extends StatelessWidget {
               context.read<ProfileBloc>().add(ProfileLoadRequested());
             }
           },
-          builder: (context, state) {
-            return _buildContent(state);
-          },
+          builder: (context, state) => _buildContent(state),
         ),
       ),
     );
@@ -122,31 +123,18 @@ class _ImageUpdateButton extends StatelessWidget {
   }
 
   Future<void> _pickImage(BuildContext context) async {
-    final bloc = context.read<ProfileBloc>();
-    try {
-      final image = await bloc.picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85,
-        maxWidth: 1024,
-        maxHeight: 1024,
-      );
-
-      if (image != null) {
-        final bytes = await image.readAsBytes();
-
-        // Принудительное обновление перед началом загрузки
-        bloc.add(ProfileImageUpdateRequested(bytes));
-
-        // Дополнительное обновление через 100 мс для надежности
-        await Future.delayed(const Duration(milliseconds: 100));
-        if (context.mounted) bloc.add(ProfileLoadRequested());
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка выбора изображения: $e')),
-      );
+  final bloc = context.read<ProfileBloc>();
+  try {
+    final bytes = await bloc.repository.pickImage();
+    if (bytes != null) {
+      bloc.add(ProfileImageUpdateRequested(bytes));
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Ошибка выбора изображения: $e')),
+    );
   }
+}
 }
 
 class _UserNameSection extends StatelessWidget {
