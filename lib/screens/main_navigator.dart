@@ -17,7 +17,7 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   final List<Widget> _screens = [
     CryptoScreen(),
-    ProfileScreen(),
+    ProfileScreen(userId: 'user1'),
     FavoritesScreen(),
   ];
 

@@ -9,6 +9,7 @@ import 'models/crypto_currency.dart';
 import 'repositories/crypto_repository.dart';
 import 'screens/crypto_detail_screen.dart';
 import 'screens/main_navigator.dart';
+import 'package:image_picker/image_picker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
