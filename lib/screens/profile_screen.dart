@@ -9,6 +9,7 @@ import 'dart:html' as html; // Только для веба
 import 'dart:convert';
 import 'dart:typed_data';
 
+// Экран профиля пользователя
 class ProfileScreen extends StatefulWidget {
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -50,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _pickImage() async {
     try {
       Uint8List? bytes;
-      
+
       if (kIsWeb) {
         bytes = await _pickImageWeb();
       } else {
@@ -74,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final file = await input.onChange.first.then((_) => input.files!.first);
     final reader = html.FileReader();
-    
+
     reader.readAsArrayBuffer(file);
     await reader.onLoadEnd.first;
     return reader.result as Uint8List?;
@@ -92,7 +93,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _saveImage(Uint8List bytes) async {
     if (bytes.length > _maxImageSize) {
-      throw Exception('Размер изображения слишком большой (${bytes.length ~/ 1024} KB). '
+      throw Exception(
+          'Размер изображения слишком большой (${bytes.length ~/ 1024} KB). '
           'Максимум: ${_maxImageSize ~/ 1024} KB');
     }
 
@@ -124,32 +126,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: StreamBuilder<DocumentSnapshot>(
         stream: _firestore.collection('users').doc(userId).snapshots(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-          
+          if (!snapshot.hasData)
+            return const Center(child: CircularProgressIndicator());
+
           final userData = snapshot.data!.data() as Map<String, dynamic>?;
           return Column(
             children: [
               const SizedBox(height: 20),
               CircleAvatar(
-                radius: 50,
-                backgroundImage: _imageBytes != null 
-                    ? MemoryImage(_imageBytes!)
-                    : null,
+                radius: 100,
+                backgroundImage:
+                    _imageBytes != null ? MemoryImage(_imageBytes!) : null,
                 child: _imageBytes == null
-                    ? const Icon(Icons.person, size: 50)
+                    ? const Icon(Icons.person, size: 100)
                     : null,
               ),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: _pickImage,
                 child: const Text('Изменить фотографию'),
               ),
-              ListTile(
-                title: Text(userData?['name'] ?? 'Гость'),
+              const SizedBox(height: 20),
+              const Text(
+              'Имя пользователя:',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                title: Text(
+                  userData?['name'] ?? 'Гость',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 trailing: IconButton(
                   icon: const Icon(Icons.edit),
                   onPressed: () => _showEditDialog(context),
                 ),
               ),
+            ),
             ],
           );
         },
@@ -159,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showEditDialog(BuildContext context) {
     final controller = TextEditingController();
-    
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(

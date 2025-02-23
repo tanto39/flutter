@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ithub/bloc/favorite/favorite_bloc.dart';
 import '../bloc/crypto/crypto_bloc.dart';
 import '../models/crypto_currency.dart';
 
+// Экран списка криптовалют
 class CryptoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -14,12 +16,17 @@ class CryptoScreen extends StatelessWidget {
             return Center(child: CircularProgressIndicator());
           } else if (state is CryptoLoaded) {
             return RefreshIndicator(
-              onRefresh: () async => context.read<CryptoBloc>().add(LoadCryptoEvent()),
+              onRefresh: () async =>
+                  context.read<CryptoBloc>().add(LoadCryptoEvent()),
               child: ListView.builder(
                 itemCount: state.cryptoList.length,
                 itemBuilder: (context, index) => CryptoCard(
-                  crypto: state.cryptoList[index]
-                ),
+                    crypto: state.cryptoList[index],
+                    onRemove: (symbol) {
+                      context
+                          .read<FavoriteBloc>()
+                          .add(RemoveFavoriteEvent(symbol));
+                    }),
               ),
             );
           }
@@ -36,13 +43,27 @@ class CryptoScreen extends StatelessWidget {
 
 class CryptoCard extends StatelessWidget {
   final CryptoCurrency crypto;
+  final Function(String) onRemove;
 
-  const CryptoCard({required this.crypto});
+  const CryptoCard({
+    required this.crypto,
+    required this.onRemove,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Dismissible(
+      key: Key(crypto.symbol),
+      direction: DismissDirection.endToStart,
+      background: Container(color: Colors.red),
+      onDismissed: (direction) => onRemove(crypto.symbol),
       child: ListTile(
+        leading: Image.network(
+          crypto.fullImageUrl,
+          width: 30,
+          height: 30,
+          errorBuilder: (_, __, ___) => const Icon(Icons.currency_bitcoin),
+        ),
         title: Text(crypto.symbol),
         trailing: Text('${crypto.price.toStringAsFixed(2)} RUB'),
         onTap: () => Navigator.pushNamed(

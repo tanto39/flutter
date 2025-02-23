@@ -7,6 +7,7 @@ import '../../repositories/crypto_repository.dart';
 part 'crypto_event.dart';
 part 'crypto_state.dart';
 
+// Bloc для списка криптовалют
 class CryptoBloc extends Bloc<CryptoEvent, CryptoState> {
   final CryptoRepository repository;
 

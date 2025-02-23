@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Репозиторий избранного
 class FavoriteRepository {
   static const _favoritesKey = 'favorites';
 

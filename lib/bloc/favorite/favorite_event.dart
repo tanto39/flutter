@@ -9,6 +9,8 @@ abstract class FavoriteEvent extends Equatable {
 
 class LoadFavoritesEvent extends FavoriteEvent {}
 
+class LoadFavoriteCryptoEvent extends FavoriteEvent {} // Новое событие
+
 class AddFavoriteEvent extends FavoriteEvent {
   final String symbol;
 
