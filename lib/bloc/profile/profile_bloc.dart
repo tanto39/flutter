@@ -30,8 +30,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     try {
       emit(ProfileLoading(
-        cachedName: (state is ProfileReady) ? (state as ProfileReady).name : null,
-        cachedImage: (state is ProfileReady) ? (state as ProfileReady).image : null,
+        cachedName:
+            (state is ProfileReady) ? (state as ProfileReady).name : null,
+        cachedImage:
+            (state is ProfileReady) ? (state as ProfileReady).image : null,
       ));
 
       final profileData = await _repository.loadProfile(userId);
@@ -54,13 +56,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final currentState = state as ProfileReady;
 
     try {
+      // Немедленно обновляем состояние для отображения индикатора
       emit(currentState.copyWith(isUpdatingImage: true));
       await _repository.saveImage(event.imageData);
+
+      // Обновляем изображение и скрываем индикатор
       emit(currentState.copyWith(
         image: event.imageData,
         isUpdatingImage: false,
       ));
     } catch (e) {
+      // Восстанавливаем состояние и показываем ошибку
       emit(currentState.copyWith(isUpdatingImage: false));
       emit(ProfileError('Ошибка обновления фото: $e', currentState));
     }

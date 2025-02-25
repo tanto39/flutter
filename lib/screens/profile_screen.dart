@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ithub/screens/terms_of_service_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../bloc/profile/profile_bloc.dart';
@@ -76,6 +77,7 @@ class _ProfileView extends StatelessWidget {
               name: state.name,
               isUpdating: state.isUpdatingName,
             ),
+            _TermsOfServiceSection(context),
           ],
         ),
         if (state.isUpdatingImage) const _ProcessingOverlay(),
@@ -123,18 +125,22 @@ class _ImageUpdateButton extends StatelessWidget {
   }
 
   Future<void> _pickImage(BuildContext context) async {
-  final bloc = context.read<ProfileBloc>();
-  try {
-    final bytes = await bloc.repository.pickImage();
-    if (bytes != null) {
-      bloc.add(ProfileImageUpdateRequested(bytes));
+    final bloc = context.read<ProfileBloc>();
+    try {
+      final bytes = await bloc.repository.pickImage();
+      if (bytes != null) {
+        bloc.add(ProfileImageUpdateRequested(bytes));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка выбора изображения: $e')),
+      );
+    } finally {
+      if (context.mounted) {
+        bloc.add(ProfileLoadRequested()); // Принудительное обновление состояния
+      }
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Ошибка выбора изображения: $e')),
-    );
   }
-}
 }
 
 class _UserNameSection extends StatelessWidget {
@@ -291,3 +297,29 @@ class _LoadingFallback extends StatelessWidget {
     );
   }
 }
+
+Widget _TermsOfServiceSection(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(20),
+    child: Column(
+      children: [
+        const Divider(),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TermsOfServiceScreen(),
+            ),
+          ),
+          child: const Text(
+            'Пользовательское соглашение',
+            style: TextStyle(color: Colors.black),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
