@@ -1,16 +1,19 @@
 # flutter_ithub
 
-A new Flutter project.
+Создано приложение «Курсы криптовалют», в котором
+выполнены требования итогового задания:
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Использована технология Bloc. Выполняются http запросы
+к сервису для получения информации о криптовалютах. Локальное сохранение данных
+– список избранных криптовалют сохраняется локально через shared preferences. Выполняется десеариализация json
+списка
+криптовалют, сериализация и десериализация json при добавлении и получении избранного. Используются различные Material виджеты (Scaffold, AppBar, BottomNavigationBar, Column, SizedBox, Text и др.). Нижняя
+навигационная панель с пунктами «Криптовалюты», «Профиль», «Избранное».
+Дополнительные экраны помимо тех что располагаются в нижней навигационной
+панели – детальная карточка криптовалюты, пользовательское соглашение. Модальные
+окна редактирования имени пользователя и ошибок в профиле пользователя.
+Возможность прикрепить фотографию профиля пользователя (сохраняется локально в local storage для веб версии и в Shared
+Preferences для мобильных устройств).  Собственная
+иконка. Используется firebase
+для
+хранения информации о пользователе.
